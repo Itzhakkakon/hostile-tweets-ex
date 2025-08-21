@@ -1,4 +1,3 @@
-# services/data_loader/main.py
 import logging
 import os
 from contextlib import asynccontextmanager
