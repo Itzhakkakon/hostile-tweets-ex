@@ -3,7 +3,7 @@ import os
 from .fetcher import DataLoader
 
 # Read configuration from environment variables in a central place.
-MONGO_ATLAS_URI = os.getenv("MONGO_ATLAS_URI", "mongodb+srv://IRGC:iraniraniran@iranmaldb.gurutam.mongodb.net/")
+MONGO_ATLAS_URI = os.getenv("MONGO_ATLAS_URI", "")
 MONGO_HOST = os.getenv("MONGO_HOST", "localhost")
 MONGO_PORT = int(os.getenv("MONGO_PORT", 27017))
 MONGO_USER = os.getenv("MONGO_USER", "")
