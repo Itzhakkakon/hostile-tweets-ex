@@ -64,3 +64,4 @@ class DataLoader:
             logger.error(f"Error retrieving all data: {e}")
             raise RuntimeError(f"Database operation failed: {e}")
 
+
