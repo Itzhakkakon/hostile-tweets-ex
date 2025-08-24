@@ -20,7 +20,6 @@ elif MONGO_USER and MONGO_PASSWORD:
     MONGO_URI = f"mongodb://{MONGO_USER}:{MONGO_PASSWORD}@{MONGO_HOST}:{MONGO_PORT}/?authSource=admin"
 else:
     MONGO_URI = f"mongodb://{MONGO_HOST}:{MONGO_PORT}/"
-
 # Create a single, shared instance (Singleton) of the DataLoader.
 # All other parts of the application will import this instance to interact with the database.
 data_loader = DataLoader(

@@ -1,10 +1,9 @@
 import logging
 import os
 from contextlib import asynccontextmanager
-
 from fastapi import FastAPI, HTTPException, status
-
 from .dependencies import data_loader
+from .manager import AnalysisManager
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 logging.basicConfig(
@@ -13,20 +12,24 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+data = dict()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
     Manages application startup and shutdown events.
     """
-    # On server startup:
-    logger.info("Application startup: connecting to database...")
     try:
         await data_loader.connect()
         logger.info("Database connection established successfully.")
+        raw_data = await data_loader.get_all_data()
+        logger.info(f"Successfully retrieved {len(raw_data)} raw records")
+        data['raw_data'] = raw_data
+        analysis_manager = AnalysisManager(data)
+        analysis_manager.start_analysis()
+        data['processed_data'] = analysis_manager.get_processed_data()
     except Exception as e:
-        logger.error(f"Failed to connect to database: {e}")
-
+        logger.error(f"Application startup failed: {e}")
     yield
 
     # On server shutdown:
@@ -79,16 +82,16 @@ def detailed_health_check():
     }
 
 
-@app.get("/rt")
-async def read_all_soldiers():
+@app.get("/data")
+async def read_all_data():
     """
     Retrieves all soldiers from the database.
     """
     try:
         logger.info("Attempting to retrieve all soldiers")
-        soldiers = await data_loader.get_all_data()
-        logger.info(f"Successfully retrieved {len(soldiers)} soldiers")
-        return soldiers
+        raw_data = await data_loader.get_all_data()
+        logger.info(f"Successfully retrieved {len(raw_data)} soldiers")
+        return raw_data
     except RuntimeError as e:
         logger.error(f"Database error retrieving all soldiers: {str(e)}")
         raise HTTPException(
@@ -100,3 +103,7 @@ async def read_all_soldiers():
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An unexpected error occurred",
         )
+
+@app.get("/data-proses")
+def read_processed_data():
+    return data['processed_data']
